@@ -22,6 +22,7 @@ constexpr bool _is_iterator_v_queue<_Ty, void_tt<_iter_cat_t<_Ty>>> = true;
 
 namespace Py {
 
+	// Two Pointer Queue
 	template<typename T>
 	class Queue {
 		using pointer = Py::BinaryNode<T>*;
@@ -325,6 +326,48 @@ namespace Py {
 			this->clear();
 			this->_size_ = 0;
 		}
+	};
+
+	constexpr auto MAX_PRIORITIES = 10;
+	// Priority Queue
+	template<typename T>
+	class Priority_Queue {
+		// Array of 10 priorities
+		Queue<T> priorities[MAX_PRIORITIES];
+
+	public:
+		Priority_Queue() = default;
+
+		// all of these are compiler provided
+
+		Priority_Queue(const Priority_Queue& obj) = default;
+		Priority_Queue(Priority_Queue&& obj) = default;
+
+		Priority_Queue& operator=(const Priority_Queue& obj) = default;
+		Priority_Queue& operator=(Priority_Queue&& obj) = default;
+
+		// Provide the Element and Priority
+		void push_priority(T elem, int priority) {
+			if (priority > 0 and priority <= MAX_PRIORITIES) {
+				// will be pushing the element in the priority
+				this->priorities[--priority].push(elem);
+			}
+		}
+
+		void pop_priority(int priority) {
+			if (priority > 0 and priority <= MAX_PRIORITIES) {
+				// will be pushing the element in the priority
+				this->priorities[--priority].pop();
+			}
+		}
+
+		void show() {
+			for (int i = 0; i < MAX_PRIORITIES; i++) {
+				cout << "Priority " << i + 1 << ": "; priorities[i].show();
+			}
+		}
+
+		~Priority_Queue() {}
 	};
 
 }
