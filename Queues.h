@@ -5,19 +5,6 @@
 #include "Nodes.h"
 using namespace std;
 
-// just a piece of code that determines if the passed parameter is an iterator
-template <class _iter>
-using _iter_cat_t = typename iterator_traits<_iter>::iterator_category;
-
-template <class... _Types>
-using void_tt = void;
-
-template <class _Ty, class = void>
-constexpr bool _is_iterator_v_queue = false;
-
-template <class _Ty>
-constexpr bool _is_iterator_v_queue<_Ty, void_tt<_iter_cat_t<_Ty>>> = true;
-
 #define init_name(x) x.name = #x
 
 namespace Py {
@@ -70,7 +57,7 @@ namespace Py {
 		}
 
 		// supports iterators that have operator * and ++ overloaded
-		template<class _Iter, enable_if_t<_is_iterator_v_queue<_Iter>, int> = 0>
+		template<class _Iter>
 		Queue(_Iter begin, _Iter end) {
 			_Iter it = begin;
 			this->_first_ = new value{ NULL };
@@ -241,6 +228,14 @@ namespace Py {
 		// in queue pop takes place in the first place
 		T pop() {
 			if (this->_size_ == 0) { return T{}; }
+			else if (this->_size_ == 1) {
+				T val = this->_first_->data;
+				delete this->_first_;
+				this->_first_ = NULL; 
+				this->_last_ = NULL;
+				this->_size_--;
+				return val;
+			}
 			else {
 				T val;
 				pointer temp = this->_first_;
@@ -336,15 +331,17 @@ namespace Py {
 		Queue<T> priorities[MAX_PRIORITIES];
 
 	public:
-		Priority_Queue() = default;
-
 		// all of these are compiler provided
+
+		Priority_Queue() = default;
 
 		Priority_Queue(const Priority_Queue& obj) = default;
 		Priority_Queue(Priority_Queue&& obj) = default;
 
 		Priority_Queue& operator=(const Priority_Queue& obj) = default;
 		Priority_Queue& operator=(Priority_Queue&& obj) = default;
+
+		// Implementing the functionality of push and pop
 
 		// Provide the Element and Priority
 		void push_priority(T elem, int priority) {
@@ -354,10 +351,26 @@ namespace Py {
 			}
 		}
 
+		// Only provide the Priority
 		void pop_priority(int priority) {
 			if (priority > 0 and priority <= MAX_PRIORITIES) {
 				// will be pushing the element in the priority
 				this->priorities[--priority].pop();
+			}
+		}
+
+		void pop() {
+			// will pop from the top priorities first
+			bool flag = true;
+			int i = 0;
+			while (flag) {
+				if (this->priorities[i].size() == 0) { 
+					i++; 
+				}
+				else {
+					this->priorities[i].pop();
+					flag = false;
+				}
 			}
 		}
 
@@ -367,7 +380,8 @@ namespace Py {
 			}
 		}
 
-		~Priority_Queue() {}
+		// also provided by the compiler
+		~Priority_Queue() = default;
 	};
 
 }
