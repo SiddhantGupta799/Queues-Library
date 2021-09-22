@@ -1,9 +1,7 @@
 #ifndef QUEUES_H
 #define QUEUES_H
 
-#include <iostream>
 #include "Nodes.h"
-using namespace std;
 
 #define init_name(x) x.name = #x
 
